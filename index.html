@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+
+<html lang="cs">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" name="viewport"/>
+<meta content="#02050e" id="theme-color-meta" name="theme-color"/>
+<title>Moje Stavba</title>
+
+<!-- Instalace na plochu iPhonu: appka běží na celou obrazovku bez
+     Safari lišt a s vlastní ikonou, stejně jako klasická appka. -->
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="apple-touch-icon.png"/>
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png"/>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Moje Stavba"/>
+
+<link href="app.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+<main class="app-shell" data-screen="dashboard">
+<section class="screen screen-onboarding" id="screen-onboarding">
+<div class="onboarding-wrap">
+<!-- Krok 1-4: krátký úvod, co appka umí -->
+<div class="intro-step is-active" data-intro-step="1">
+<div class="onboarding-mark"><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M12 31 L32 13 L52 31"></path><path d="M18 28 V53 H28 V39 H36 V53 H46 V28"></path></svg></div>
+<h1>Vítej v Mojí stavbě</h1>
+<p class="onboarding-sub">Appka na sledování celé stavby domu — etapy, deník, fotky i finance na jednom místě. Rychle ukážeme, co kde najdeš.</p>
+</div>
+<div class="intro-step" data-intro-step="2">
+<div class="onboarding-mark"><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M13 38 L32 28 L51 38 L32 50 Z"></path><path d="M13 26 L32 16 L51 26 L32 38 Z"></path><path d="M13 26 V38 M51 26 V38 M32 38 V50"></path></svg></div>
+<h1>Etapy stavby</h1>
+<p class="onboarding-sub">V záložce Etapy si přidáš kroky stavby — vyber z předpřipravené sady (základy, hrubá stavba, střecha...) nebo si pojmenuj vlastní.</p>
+</div>
+<div class="intro-step" data-intro-step="3">
+<div class="onboarding-mark"><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M17 12 H42 L50 20 V52 H17 Z"></path><path d="M42 12 V21 H50"></path><path d="M24 28 H42 M24 36 H40 M24 44 H34"></path><path d="M40 45 L50 35 L55 40 L45 50 L38 52 Z"></path></svg></div>
+<h1>Deník a fotky</h1>
+<p class="onboarding-sub">Centrální neonové plus dole ti kdykoliv rychle otevře zápis do deníku nebo přidání fotky — přímo k etapě, na které pracuješ.</p>
+</div>
+<div class="intro-step" data-intro-step="4">
+<div class="onboarding-mark"><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M12 22 H48 Q54 22 54 28 V48 Q54 54 48 54 H16 Q10 54 10 48 V20 Q10 14 16 14 H43 V22"></path><path d="M42 34 H56 V45 H42 Q36 45 36 39.5 Q36 34 42 34 Z"></path><path d="M47 39.5 H48"></path></svg></div>
+<h1>Finance pod kontrolou</h1>
+<p class="onboarding-sub">Stejným plus tlačítkem zapíšeš i transakci — appka sama počítá zůstatek a rozpočet po etapách.</p>
+</div>
+<div class="intro-dots" id="intro-dots">
+<span class="is-active" data-dot="1"></span><span data-dot="2"></span><span data-dot="3"></span><span data-dot="4"></span>
+</div>
+<button class="primary-wide" id="intro-next">Další</button>
+<button class="ghost-wide" id="intro-skip">Přeskočit úvod</button>
+<!-- Krok 5: výběr vizuálního motivu -->
+<div class="intro-step" data-intro-step="5">
+<div class="onboarding-mark"><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M35 9 L17 37 H29 L25 55 L49 25 H35 Z"></path></svg></div>
+<h1>Vyber si vzhled appky</h1>
+<p class="onboarding-sub">Neon, nebo světlý motiv Technický — kdykoliv to jde změnit i později v Nastavení.</p>
+<div class="theme-grid">
+<button class="theme-tile is-active" data-theme-option="neon" id="onb-theme-neon">
+<svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M35 9 L17 37 H29 L25 55 L49 25 H35 Z"></path></svg>
+<span>Neon</span>
+</button>
+<button class="theme-tile" data-theme-option="blueprint" id="onb-theme-blueprint">
+<svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><rect height="36" width="36" x="14" y="14"></rect><path d="M14 26 H50 M14 38 H50 M26 14 V50 M38 14 V50"></path></svg>
+<span>Technický</span>
+</button>
+</div>
+<p class="theme-preview-label">Náhled dashboardu</p>
+<div class="theme-preview">
+<img alt="Náhled dashboardu" id="onb-theme-preview-img" src="dashboard-preview-neon.webp"/>
+</div>
+</div>
+<!-- Krok 6: založení prvního projektu -->
+<div class="intro-step" data-intro-step="6">
+<div class="onboarding-mark"><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M32 14 V50 M14 32 H50"></path></svg></div>
+<h1>Založ svůj první projekt</h1>
+<p class="onboarding-sub">Poslední krok. Můžeš mít později víc projektů a kdykoliv mezi nimi přepínat.</p>
+<label class="onboarding-field">
+<span>Název projektu <i id="onb-name-count">0/22</i></span>
+<input autocomplete="off" id="onb-name" maxlength="22" placeholder="např. Rodinný dům" type="text"/>
+</label>
+<label class="onboarding-field">
+<span>Typ projektu</span>
+<div class="type-pill-row" id="onb-type-pills">
+<button class="type-pill is-active" data-type-value="Rodinný dům" type="button">Rodinný dům</button>
+<button class="type-pill" data-type-value="Garáž" type="button">Garáž</button>
+<button class="type-pill" data-type-value="Rekonstrukce" type="button">Rekonstrukce</button>
+<button class="type-pill" data-type-value="Zahrada" type="button">Zahrada</button>
+<button class="type-pill" data-type-value="" id="onb-type-custom-btn" type="button">Vlastní</button>
+</div>
+<input autocomplete="off" id="onb-type" maxlength="24" placeholder="Napiš vlastní typ projektu..." style="display:none;margin-top:8px" type="text"/>
+</label>
+<label class="onboarding-field">
+<span>Lokalita</span>
+<input autocomplete="off" id="onb-location" maxlength="28" placeholder="např. Malé Březno" type="text"/>
+</label>
+<button class="primary-wide" disabled="" id="onb-submit">Vytvořit projekt</button>
+</div>
+</div>
+</section>
+<section class="screen screen-dashboard is-active" id="screen-dashboard">
+<header class="topbar app-topbar">
+<button aria-label="Přepnout projekt" class="project-title" id="project-switch-btn" type="button">
+<span class="switch-icon">⇅</span>
+<span class="project-name-wrap"><span class="project-name" data-bind-name="">Nový projekt</span>
+<small class="project-subtitle" data-bind-location="">—</small></span>
+</button>
+<div class="top-actions">
+<button aria-label="Vyhledávání" class="square-button" id="search-toggle">⌕</button>
+<button aria-label="Martin – asistent" class="square-button martin-btn" id="martin-toggle">M<span class="martin-badge">AI</span></button>
+<button aria-label="Nastavení" class="square-button" data-nav="settings">⚙</button>
+</div>
+</header>
+<div class="project-menu glass-card" id="project-menu">
+<p>Projekty</p>
+<button class="is-selected"><span><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M12 31 L32 13 L52 31"></path><path d="M18 28 V53 H28 V39 H36 V53 H46 V28"></path></svg></span><strong data-bind-name="">Nový projekt</strong><small data-bind-location="">—</small><em>✓</em></button>
+<button class="new-project"><span><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M32 14 V50 M14 32 H50"></path></svg></span><strong>Nový projekt</strong><small>Vytvořit další stavbu</small></button>
+</div>
+<div class="search-overlay glass-card" id="search-overlay">
+<label>⌕ <input autocomplete="off" placeholder="Hledat v projektu..." type="search"/></label>
+<div class="search-results"><p class="empty-hint">Zatím není co hledat.</p></div>
+</div>
+<section class="hero-card glass-card">
+<img alt="Model stavby" class="hero-house" id="hero-house-img" src="hero-house.webp"/>
+<div class="hero-content">
+<article class="day-box" id="day-box"><p>Den stavby</p><strong data-day-value="">—</strong></article>
+<article class="stage-box"><p>Aktuální etapa</p><h1>—</h1><button class="primary-button">Otevřít etapu <span>›</span></button></article>
+</div>
+</section>
+<section class="cards-grid">
+<article class="info-card event-card glass-card" data-nav-card="calendar"><p class="card-label">Nejbližší událost</p><div class="calendar-icon hud-date"><img alt="" src="dash-calendar.svg"/><span>—</span><strong>—</strong></div><h2>Žádná událost</h2><p class="muted accent">Zatím není nic v kalendáři</p><span class="card-go-hint">Kalendář <b>›</b></span></article>
+<article class="info-card glass-card" data-nav-card="transactions" data-trans-preset="all"><p class="card-label">K dispozici</p><div class="mini-icon wallet"><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M12 22 H48 Q54 22 54 28 V48 Q54 54 48 54 H16 Q10 54 10 48 V20 Q10 14 16 14 H43 V22"></path><path d="M42 34 H56 V45 H42 Q36 45 36 39.5 Q36 34 42 34 Z"></path><path d="M47 39.5 H48"></path></svg></div><h2 class="money-green">0 Kč</h2><p class="muted">Aktuální zůstatek</p><span class="card-go-arrow">›</span></article>
+<article class="info-card glass-card" data-nav-card="transactions" data-trans-preset="expense"><p class="card-label">Poslední výdaj</p><div class="mini-icon receipt"><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M18 10 H46 V54 L38 48 L30 54 L22 48 L18 51 Z"></path><path d="M25 22 H39 M25 30 H39 M25 38 H34"></path></svg></div><h2 class="money-red">0 Kč</h2><p class="muted">Zatím žádný výdaj</p><span class="card-go-arrow">›</span></article>
+</section>
+<section class="gallery-card glass-card"><div class="section-head"><p class="card-label">Poslední fotografie</p><button class="link-button" data-open-gallery="dashboard">Zobrazit galerii <span>›</span></button></div><div class="photo-row"><p class="empty-hint">Zatím žádné fotografie.</p></div></section>
+</section>
+<section class="screen screen-diary" id="screen-diary">
+<header class="sub-topbar"><button class="back-button" id="diary-back-btn">‹</button><h1>Stavební deník</h1><div></div></header>
+<div class="filter-wrap"><div class="filter-row"><button class="filter-pill is-active" data-stage-filter="all">Vše</button><button class="filter-pill" data-stage-toggle="">Etapa <small data-selected-stage="">Všechny etapy</small> <span>⌄</span></button><button class="filter-pill" data-open-calendar="">Kalendář ▣</button></div><div class="stage-menu glass-card" id="stage-menu"></div></div>
+<button class="diary-export-row glass-card" id="diary-export-open"><span class="diary-export-icon"><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M32 18 C26 13 17 13 12 15 V50 C17 48 26 48 32 53 C38 48 47 48 52 50 V15 C47 13 38 13 32 18 Z"></path><path d="M32 18 V53"></path></svg></span><div><b>Vygenerovat stavební deník</b><small>PDF po etapách, jedna etapa nebo kompletní deník</small></div><b class="diary-export-go">›</b></button>
+<button class="primary-wide" id="diary-add-entry-btn" style="margin:0 16px 12px">+ Přidat zápis</button>
+<section class="timeline" id="diary-timeline"><p class="empty-hint">Zatím žádné zápisy ve stavebním deníku.</p></section>
+
+</section>
+<section class="screen screen-stages" id="screen-stages">
+<header class="sub-topbar"><button class="back-button" data-nav="dashboard">‹</button><h1>Etapy</h1><div></div></header>
+<div class="stages-empty" id="stages-empty">
+<div class="stages-empty-mark"><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M13 38 L32 28 L51 38 L32 50 Z"></path><path d="M13 26 L32 16 L51 26 L32 38 Z"></path><path d="M13 26 V38 M51 26 V38 M32 38 V50"></path></svg></div>
+<h2>Zatím tu nemáš žádné etapy</h2>
+<p>Etapy ti pomůžou sledovat průběh, fotky i náklady stavby krok za krokem. Vyber si z předpřipravené sady, nebo si založ vlastní.</p>
+<button class="primary-wide" id="stages-empty-preset">Vybrat z předpřipravených etap</button>
+<button class="ghost-wide" id="stages-empty-custom">Vytvořit vlastní etapu</button>
+</div>
+<div class="add-stage-wrap" id="add-stage-wrap">
+<button class="add-stage-toggle glass-card" id="add-stage-toggle"><span class="ast-plus">+</span><strong>Přidat etapu</strong><span class="ast-chevron">⌄</span></button>
+<div class="add-stage-dropdown glass-card" id="add-stage-dropdown">
+<div id="add-stage-presets"></div>
+<button class="add-stage-option add-stage-custom" id="add-stage-custom-option"><span class="ast-plus-sm">+</span><span>Vlastní etapa</span></button>
+</div>
+</div>
+<p class="stages-hint" id="stages-hint">Klepni na ⋯ u etapy a nastav ji jako aktuální.</p>
+<section class="stages-list" id="stages-list">
+</section>
+</section>
+<section class="screen screen-stage-detail" id="screen-stage-detail">
+<header class="sub-topbar"><button class="back-button" data-nav="stages">‹</button><h1 data-stage-title="">Detail etapy</h1><div><button class="plain-icon" id="stage-detail-menu-btn">⋯</button></div></header>
+<section class="stage-detail-hero glass-card">
+<img alt="Ikona etapy" data-stage-icon="" src="stage-foundation.svg"/>
+<div class="stage-detail-main">
+<h2 data-stage-name="">Základová deska</h2>
+<p class="stage-status"><i></i><span data-stage-status="">Probíhá</span></p>
+<small>Utraceno v etapě</small>
+<strong data-stage-spent="">0 Kč</strong>
+<div class="detail-accent-line"></div>
+</div>
+</section>
+<section class="quick-add glass-card">
+<h3>Rychle přidat</h3>
+<p class="quick-add-note">Běžné věci přidávejte přes centrální neonové plus. Nabídky zůstávají přímo v etapě.</p>
+<div class="quick-actions quick-actions-compact">
+<button data-quick-form="entry"><span class="qa-purple">▤</span><small>Zápis</small></button>
+<button data-quick-form="transaction" data-lock-expense><span class="qa-green">▱</span><small>Peníze</small></button>
+<button data-quick-form="photo"><span class="qa-orange">◉</span><small>Fotky</small></button>
+<button data-quick-form="event"><span class="qa-cyan">▣</span><small>Událost</small></button>
+</div>
+</section>
+<section class="detail-section glass-card tasks-section">
+<div class="section-head"><h3>Úkoly / další kroky</h3><button class="link-button" id="task-add-btn">＋ Přidat úkol</button></div>
+<div id="tasks-preview"></div>
+<button class="link-button tasks-viewall" id="tasks-view-all">Zobrazit všechny úkoly</button>
+</section>
+<section class="detail-section glass-card">
+<div class="section-head"><h3>Poslední aktivita</h3></div>
+<div class="activity-grid">
+<article id="activity-diary-card"><span class="qa-purple">▤</span><b>Zápis do deníku</b><small>Zatím prázdné</small><p data-last-diary="">Zatím žádný zápis.</p></article>
+<article id="activity-gallery-card"><span class="qa-orange">◉</span><b>Galerie</b><small>Zatím prázdné</small></article>
+<article id="activity-expense-card"><span class="qa-green">▱</span><b>Výdaj</b><small>Zatím prázdné</small><div data-last-expense-wrap><p>Zatím bez výdajů</p></div></article>
+</div>
+</section>
+<section class="detail-section glass-card">
+<div class="section-head"><h3>Deník etapy</h3><button class="link-button" data-open-related="diary">Zobrazit vše</button></div>
+<p class="empty-hint" data-stage-diary="">Zatím žádný zápis u této etapy.</p>
+</section>
+<section class="detail-section glass-card">
+<div class="section-head"><h3>Transakce</h3><button class="link-button" id="stage-detail-trans-all">Zobrazit vše</button></div>
+<div class="mini-transaction-list" data-stage-transactions=""><p class="empty-hint">Zatím žádná transakce v této etapě.</p></div>
+</section>
+<section class="detail-section glass-card offers-section">
+<div class="section-head"><h3>Nabídky</h3><button class="link-button" id="offer-add-btn">＋ Přidat nabídku</button></div>
+<div id="offers-preview"></div>
+<button class="link-button offers-viewall" id="offers-view-all">Zobrazit všechny nabídky</button>
+</section>
+<section class="detail-section glass-card">
+<div class="section-head"><h3>Fotky</h3><button class="link-button" data-open-gallery="stage">Zobrazit vše</button></div>
+<div class="stage-photo-strip"><button id="stage-photo-add-btn" type="button">+<small>Přidat fotku</small></button></div>
+</section>
+<section class="detail-section glass-card">
+<div class="section-head"><h3>Dokumenty</h3><button class="link-button" id="docs-view-all">Zobrazit vše</button></div>
+<div class="docs-row" id="docs-preview"></div>
+<input hidden="" id="docs-file-input" type="file" multiple/>
+</section>
+</section>
+<section class="screen screen-entry-detail" id="screen-entry-detail">
+<header class="sub-topbar"><button class="back-button" data-entry-back="">‹</button><div class="entry-title-head"><h1>Zápis v deníku</h1><small data-entry-stage="">—</small></div><div><button class="plain-icon" id="entry-edit-btn">✎</button></div></header>
+<section class="entry-detail-card glass-card">
+<div class="entry-detail-head">
+<div class="date-tile"><strong data-entry-day="">20</strong><span data-entry-month="">Kvě</span><small data-entry-year="">2024</small></div>
+<div class="entry-head-text"><h2 data-entry-title="">Dokončena betonáž základové desky.</h2><p><span>🕑 <b data-entry-time="">14:30</b></span><span>☀️ <b data-entry-weather="">—</b></span></p><em data-entry-status="">—</em></div>
+</div>
+<p class="entry-long-text" data-entry-text="">Zatím žádný zápis.</p>
+<div class="entry-detail-section" id="entry-detail-work" style="display:none"><h3>Práce</h3><p class="entry-work-line"><span data-entry-worktype></span><span data-entry-workers></span></p></div>
+<div class="entry-detail-section" id="entry-detail-materials" style="display:none"><h3>Použité materiály</h3><p class="entry-long-text" data-entry-materials></p></div>
+<div class="entry-detail-section"><div class="section-head"><h3 data-entry-photos-count>Fotky (0)</h3></div><div class="entry-detail-photos" id="entry-detail-photos"><p class="empty-hint">Zatím žádné fotografie.</p></div></div>
+<div class="entry-detail-section"><h3>Přílohy</h3><div id="entry-detail-attachment"><p class="empty-hint">Zatím žádná příloha.</p></div></div>
+<div class="entry-detail-actions"><button class="share-entry" id="entry-pdf-btn">Generovat PDF zápisu</button><button class="delete-entry" id="entry-delete-btn">Smazat zápis</button></div>
+</section>
+</section>
+<section class="screen screen-gallery" id="screen-gallery">
+<header class="sub-topbar"><button class="back-button" data-gallery-back="">‹</button><h1>Galerie</h1><div></div></header>
+<div class="gallery-filter glass-card">
+<button class="is-active" data-gallery-filter="all">Vše</button>
+<button data-gallery-filter="stage">Etapa <span data-gallery-stage-name="">Základová deska</span></button>
+</div>
+<div class="gallery-stage-menu glass-card" id="gallery-stage-menu"></div>
+<section class="gallery-grid" id="gallery-grid"><p class="empty-hint">Zatím žádné fotografie.</p></section>
+</section>
+<section class="screen screen-photo-detail" id="screen-photo-detail">
+<div class="photo-viewer">
+<header class="photo-top"><button class="photo-close" data-photo-back="">×</button><strong data-photo-counter="">1 / 12</strong><button class="photo-star">☆</button></header>
+<img alt="Fotografie" class="photo-main" data-photo-main=""/>
+<button class="photo-arrow left" data-photo-prev="">‹</button><button class="photo-arrow right" data-photo-next="">›</button>
+<div class="photo-info-sheet glass-card">
+<span class="sheet-handle"></span>
+<article><small>Datum pořízení</small><b data-photo-date="">—</b><button id="photo-edit-date">Upravit ✎</button></article>
+<article><small>Etapa</small><b data-photo-stage="">—</b><button id="photo-edit-stage">›</button></article>
+<article><small>Připojeno k zápisu</small><b data-photo-entry="">—</b><button id="photo-open-entry">›</button></article>
+<button class="assign-button" data-open-attach="">🔗 Přiřadit k zápisu</button>
+<div class="photo-actions"><button id="photo-action-share">↥<small>Sdílet</small></button><button id="photo-action-download">↓<small>Stáhnout</small></button><button id="photo-action-star">☆<small>Oblíbené</small></button><button id="photo-action-delete">⌫<small>Smazat</small></button></div>
+</div>
+</div>
+</section>
+<section class="screen screen-photo-attach" id="screen-photo-attach">
+<header class="sub-topbar"><button class="back-button" data-attach-back="">‹</button><h1>Přiřadit k zápisu</h1><div><button class="plain-icon">×</button></div></header>
+<div class="search-field glass-card">⌕ <span>Hledat v zápisech...</span></div>
+<section class="attach-list">
+<p>Doporučené ze stejné etapy</p>
+<p>Starší zápisy v etapě</p>
+</section>
+<button class="attach-confirm">Přiřadit k tomuto zápisu</button>
+<p class="empty-hint">Zatím není žádný zápis, ke kterému by šla fotka připojit.</p></section>
+<section class="screen screen-tasks" id="screen-tasks">
+<header class="sub-topbar"><button class="back-button" data-nav="stageDetail">‹</button><h1 data-tasks-stage-title="">Úkoly</h1><div><button class="plain-icon" id="tasks-add-btn-full">+</button></div></header>
+<div id="tasks-full-list"></div>
+</section>
+<section class="screen screen-documents" id="screen-documents">
+<header class="sub-topbar"><button class="back-button" data-nav="stageDetail">‹</button><h1>Dokumenty</h1><div><button class="plain-icon" id="docs-add-btn-full">+</button></div></header>
+<div class="docs-full-list" id="docs-full-list"></div>
+</section>
+<section class="screen screen-offers" id="screen-offers">
+<header class="sub-topbar"><button class="back-button" data-nav="stageDetail">‹</button><h1>Nabídky</h1><div><button class="plain-icon" id="offers-add-btn-full">+</button></div></header>
+<div id="offers-full-list"></div>
+</section>
+<section class="screen screen-calendar" id="screen-calendar">
+<header class="sub-topbar"><button class="back-button" data-nav="dashboard">‹</button><h1>Kalendář</h1><div><button class="plain-icon">⋯</button></div></header>
+<section class="build-calendar glass-card">
+<div class="month-head"><button>‹</button><strong>Kalendář</strong><button>›</button></div>
+<div class="month-grid" id="month-grid">
+<span>Po</span><span>Út</span><span>St</span><span>Čt</span><span>Pá</span><span>So</span><span>Ne</span>
+</div>
+</section>
+<section class="day-summary glass-card">
+<div class="section-head"><div><p class="card-label">Vybraný den</p><h2 data-cal-day-title="">Dnes</h2></div><button class="link-button" id="cal-add-event-btn">+ Přidat událost</button></div>
+<div class="legend-row"><span><i class="purple"></i>Událost</span><span><i class="orange"></i>Milník stavby</span></div>
+<div id="cal-day-items"><article class="calendar-item empty-item"><span>▣</span><div><b>Žádné záznamy</b><small>Vybraný den je zatím prázdný</small></div></article></div></section>
+</section>
+<section class="screen screen-transactions" id="screen-transactions">
+<header class="sub-topbar"><button class="back-button" id="trans-back-btn">‹</button><h1>Transakce</h1><button class="plain-icon" id="trans-add-btn" type="button">+</button></header>
+<div class="filter-wrap trans-filter-wrap"><div class="filter-row transaction-tabs"><button class="filter-pill is-active" data-trans-filter="all">Vše</button><button class="filter-pill" data-trans-stage-toggle="">Etapa <small data-trans-selected-stage="">Všechny etapy</small> <span>⌄</span></button><button class="filter-pill" data-trans-filter="expense">Výdaje</button><button class="filter-pill" data-trans-filter="income">Vklady</button></div><div class="stage-menu glass-card" id="trans-stage-menu"></div></div>
+<section class="summary-card glass-card" id="trans-summary"><p class="card-label">Aktuální zůstatek</p><h2 class="money-green">0 Kč</h2><div class="summary-icon">⌁</div></section>
+<section class="transaction-list" id="transaction-list"><p class="empty-hint">Zatím žádné transakce. Přidej první přes centrální plus.</p></section>
+</section>
+<section class="screen screen-project" id="screen-project">
+<header class="sub-topbar"><button class="back-button" data-nav="dashboard">‹</button><h1>Projekt</h1><div></div></header>
+<section class="project-archive-hero glass-card">
+<div class="project-archive-icon"><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M10 20 H26 L30 26 H54 V50 H10 Z"></path></svg></div>
+<div><h2 data-bind-name="">Nový projekt</h2><p>Digitální projektový šanon</p><small>Výkresy, dokumentace, povolení, vlastní složky a oblíbené soubory.</small></div>
+</section>
+<button class="primary-wide" id="project-add-btn" style="margin:0 16px 14px">＋ Přidat do projektu</button>
+<section class="project-folder-grid">
+<button class="project-folder glass-card" data-folder="drawings"><span><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M12 46 L40 18 L52 30 L24 58 Z"></path><path d="M19 41 L23 45 M25 35 L29 39 M31 29 L35 33 M37 23 L41 27"></path></svg></span><strong>Výkresy</strong><small id="folder-count-drawings">0 souborů</small></button>
+<button class="project-folder glass-card" data-folder="docs"><span><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M18 10 H40 L48 18 V54 H18 Z"></path><path d="M40 10 V18 H48"></path><path d="M24 28 H42 M24 36 H42 M24 44 H36"></path></svg></span><strong>Dokumentace</strong><small id="folder-count-docs">0 souborů</small></button>
+<button class="project-folder glass-card" data-folder="favorites"><span><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M32 12 L38 28 L55 28 L41 38 L46 54 L32 44 L18 54 L23 38 L9 28 L26 28 Z"></path></svg></span><strong>Oblíbené</strong><small id="folder-count-favorites">0 položek</small></button>
+<button class="project-folder glass-card" data-folder="custom"><span><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M10 20 H26 L30 26 H54 V50 H10 Z"></path></svg></span><strong>Vlastní složky</strong><small id="folder-count-custom">0 souborů</small></button>
+</section>
+<section class="settings-group glass-card project-files">
+<div class="section-head"><h3>Poslední soubory</h3></div>
+<div id="project-files-preview"><p class="empty-hint">Zatím žádné soubory v projektu.</p></div>
+<input hidden="" id="project-file-input" type="file" multiple/>
+</section>
+</section>
+<section class="screen screen-project-folder" id="screen-project-folder">
+<header class="sub-topbar"><button class="back-button" data-nav="project">‹</button><h1 id="project-folder-title">Složka</h1><div><button class="plain-icon" id="project-folder-add-btn">+</button></div></header>
+<div class="docs-full-list" id="project-folder-list"><p class="empty-hint">Tahle složka je zatím prázdná.</p></div>
+</section>
+<section class="screen screen-settings" id="screen-settings">
+<header class="sub-topbar"><button class="back-button" data-nav="dashboard">‹</button><h1>⚙</h1><div></div></header>
+<section class="settings-hero glass-card">
+<div class="settings-icon"><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M12 31 L32 13 L52 31"></path><path d="M18 28 V53 H28 V39 H36 V53 H46 V28"></path></svg></div>
+<div><h2 data-bind-name="">Nový projekt</h2><p data-bind-location="">—</p><small data-settings-summary="">Den stavby — · 0 etap</small></div>
+</section>
+<section class="settings-group glass-card">
+<h3>Vzhled</h3>
+<p class="settings-note">Vyber vizuální styl Dashboardu.</p>
+<div class="theme-grid">
+<button class="theme-tile" data-theme-option="neon" id="theme-option-neon">
+<svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M35 9 L17 37 H29 L25 55 L49 25 H35 Z"></path></svg>
+<span>Neon</span>
+</button>
+<button class="theme-tile" data-theme-option="blueprint" id="theme-option-blueprint">
+<svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><rect height="36" width="36" x="14" y="14"></rect><path d="M14 26 H50 M14 38 H50 M26 14 V50 M38 14 V50"></path></svg>
+<span>Technický</span>
+</button>
+</div>
+</section>
+<section class="settings-group glass-card">
+<h3>Projekt</h3>
+<button class="settings-row"><span><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M16 48 L38 26 L46 34 L24 56 L14 58 Z"></path><path d="M34 30 L42 38"></path><path d="M44 16 L52 24 L46 30 L38 22 Z"></path></svg></span><div><b>Upravit projekt</b><small>Název, lokalita, typ projektu a ikona</small></div><em>›</em></button>
+<button class="settings-row danger" id="delete-project"><span><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M14 20 H50 M26 20 V13 H38 V20 M19 20 L22 54 H42 L45 20"></path><path d="M27 28 V46 M37 28 V46"></path></svg></span><div><b>Smazat projekt</b><small>Vyžaduje potvrzení, aby nešlo smazat omylem</small></div><em>›</em></button>
+</section>
+<section class="settings-group glass-card">
+<h3>Oznámení</h3>
+<div class="settings-row notif-row" id="notif-toggle-row">
+<span><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M32 12 C24 12 20 18 20 28 V36 L14 44 H50 L44 36 V28 C44 18 40 12 32 12 Z"></path><path d="M27 50 a5 5 0 0 0 10 0"></path></svg></span>
+<div><b>Upozornění na události</b><small>Dáme ti vědět, když se blíží naplánovaná událost</small></div>
+<label class="switch"><input id="notif-toggle" type="checkbox"/><span class="switch-track"></span></label>
+</div>
+<div class="notif-options" id="notif-options">
+<label class="settings-subrow"><span>Upozornit dopředu</span>
+<select id="notif-lead">
+<option value="30">30 minut</option>
+<option selected="" value="60">1 hodinu</option>
+<option value="180">3 hodiny</option>
+<option value="1440">1 den</option>
+</select>
+</label>
+<button class="ghost-wide" id="notif-test">Odeslat zkušební oznámení</button>
+<p class="notif-hint">Oznámení fungují, dokud máš appku otevřenou v prohlížeči (nebo povolené notifikace na telefonu). Upozornění i se zavřenou appkou by v budoucnu vyžadovalo doplnit serverovou část.</p>
+</div>
+</section>
+<section class="settings-group glass-card">
+<h3>Souhrn projektu ke sdílení</h3>
+<p class="settings-note">Vyber rozsah a co se má do PDF souhrnu zahrnout. Hodí se třeba pro banku, rodinu nebo řemeslníka — bez nutnosti appku vůbec mít.</p>
+<div class="type-pill-row" id="share-scope-pills">
+<button class="type-pill is-active" data-scope="all" type="button">Celý projekt</button>
+<button class="type-pill" data-scope="stage" type="button">Jedna etapa</button>
+<button class="type-pill" data-scope="range" type="button">Časové období</button>
+</div>
+<label class="form-field" id="share-scope-stage-field" style="display:none;margin-top:10px"><span>Etapa</span><div id="share-scope-stage-pills"></div></label>
+<div id="share-scope-range-field" style="display:none;margin-top:10px">
+<label class="form-field"><span>Od</span><input id="share-scope-from" type="date"></label>
+<label class="form-field"><span>Do</span><input id="share-scope-to" type="date"></label>
+</div>
+<p class="settings-note" style="margin-top:14px">Co zahrnout</p>
+<div class="share-grid">
+<button class="share-tile is-on" data-share-section="stages"><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M13 38 L32 28 L51 38 L32 50 Z"></path><path d="M13 26 L32 16 L51 26 L32 38 Z"></path><path d="M13 26 V38 M51 26 V38 M32 38 V50"></path></svg><span>Etapy</span></button>
+<button class="share-tile is-on" data-share-section="diary"><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M17 12 H42 L50 20 V52 H17 Z"></path><path d="M42 12 V21 H50"></path><path d="M24 28 H42 M24 36 H40 M24 44 H34"></path><path d="M40 45 L50 35 L55 40 L45 50 L38 52 Z"></path></svg><span>Deník</span></button>
+<button class="share-tile is-on" data-share-section="gallery"><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M14 22 H25 L29 16 H39 L43 22 H50 Q55 22 55 27 V48 Q55 53 50 53 H14 Q9 53 9 48 V27 Q9 22 14 22 Z"></path><circle cx="32" cy="38" r="10"></circle><path d="M48 29 H49"></path></svg><span>Galerie</span></button>
+<button class="share-tile" data-share-section="finance"><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M12 22 H48 Q54 22 54 28 V48 Q54 54 48 54 H16 Q10 54 10 48 V20 Q10 14 16 14 H43 V22"></path><path d="M42 34 H56 V45 H42 Q36 45 36 39.5 Q36 34 42 34 Z"></path><path d="M47 39.5 H48"></path></svg><span>Finance</span></button>
+<button class="share-tile" data-share-section="documents"><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M18 10 H40 L48 18 V54 H18 Z"></path><path d="M40 10 V18 H48"></path><path d="M24 28 H42 M24 36 H42 M24 44 H36"></path></svg><span>Dokumenty</span></button>
+<button class="share-tile is-on" data-share-section="calendar"><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M18 13 H46 V54 H18 Z"></path><path d="M18 24 H46"></path><path d="M24 10 V18 M40 10 V18"></path><path d="M25 38 L31 44 L42 31"></path></svg><span>Kalendář</span></button>
+</div>
+<p class="settings-note" id="share-finance-note" style="display:none;color:#ff9b6b">Finance ukážou konkrétní částky a firmy — zvaž, komu to posíláš.</p>
+<button class="primary-wide" id="invite-generate">Vytvořit a sdílet PDF</button>
+</section>
+<section class="settings-group glass-card">
+<h3>Jazyk</h3>
+<button class="settings-row"><span><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><circle cx="32" cy="32" r="20"></circle><path d="M12 32 H52"></path><path d="M32 12 C24 20 24 44 32 52 C40 44 40 20 32 12 Z"></path></svg></span><div><b>Čeština</b><small>Další jazyky připravíme později</small></div><em>›</em></button>
+</section>
+<section class="settings-group glass-card">
+<h3>Exporty</h3>
+<button class="settings-row" id="export-kronika"><span><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M32 18 C26 13 17 13 12 15 V50 C17 48 26 48 32 53 C38 48 47 48 52 50 V15 C47 13 38 13 32 18 Z"></path><path d="M32 18 V53"></path></svg></span><div><b>Kronika stavby PDF</b><small>Kompletní souhrn: deník, fotky, etapy i finance v jedné vzpomínkové knize</small></div><em>›</em></button>
+<button class="settings-row" id="export-finance"><span><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M12 22 H48 Q54 22 54 28 V48 Q54 54 48 54 H16 Q10 54 10 48 V20 Q10 14 16 14 H43 V22"></path><path d="M42 34 H56 V45 H42 Q36 45 36 39.5 Q36 34 42 34 Z"></path><path d="M47 39.5 H48"></path></svg></span><div><b>Finance PDF</b><small>Vyberte si, co se má do přehledu výdajů a vkladů zahrnout</small></div><em>›</em></button>
+</section>
+<section class="settings-group glass-card">
+<h3>Záloha dat</h3>
+<p class="settings-note">Doporučujeme čas od času zálohovat, hlavně před smazáním appky z plochy — data appky žijí jen v tomhle telefonu.</p>
+<button class="settings-row" id="backup-export-btn"><span><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M32 10 V40 M20 28 L32 40 L44 28"></path><path d="M14 46 V50 Q14 54 18 54 H46 Q50 54 50 50 V46"></path></svg></span><div><b>Zálohovat data</b><small>Uloží všechny projekty do jednoho souboru</small></div><em>›</em></button>
+<button class="settings-row" id="backup-import-btn"><span><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M32 54 V24 M20 36 L32 24 L44 36"></path><path d="M14 46 V50 Q14 54 18 54 H46 Q50 54 50 50 V46"></path></svg></span><div><b>Obnovit ze zálohy</b><small>Nahradí aktuální data souborem ze zálohy</small></div><em>›</em></button>
+<input type="file" accept="application/json" id="backup-import-input" hidden>
+</section>
+<section class="settings-group glass-card">
+<h3>O aplikaci</h3>
+<button class="settings-row" id="about-app-btn"><span><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><circle cx="32" cy="32" r="21"></circle><path d="M32 30 V46"></path><path d="M32 20 V21" stroke-linecap="round" stroke-width="7"></path></svg></span><div><b>Moje Stavba</b><small>O appce, verzi a filozofii projektu</small></div><em>›</em></button>
+</section>
+</section>
+<div aria-hidden="true" class="martin-overlay" id="martin-overlay">
+<button class="quick-plus-backdrop" id="martin-close-bg"></button>
+<section class="martin-card glass-card">
+<div class="martin-head">
+<div class="martin-head-avatar">M<span class="martin-badge">AI</span></div>
+<div><b>Martin</b><small>Asistent appky Moje Stavba</small></div>
+<button class="sheet-close" id="martin-close">×</button>
+</div>
+<div class="martin-messages" id="martin-messages"></div>
+<div class="martin-chips" id="martin-chips">
+<button data-chip="Kde jsou fotky ze základů?">Kde jsou fotky ze základů?</button>
+<button data-chip="Přidej výdaj 2000 za hřebíky">Přidej výdaj 2000 za hřebíky</button>
+<button data-chip="Otevři úkoly">Otevři úkoly</button>
+</div>
+<form class="martin-input-row" id="martin-input-row">
+<input autocomplete="off" id="martin-input" placeholder="Napiš Martinovi..." type="text"/>
+<button aria-label="Odeslat" id="martin-send" type="submit">➤</button>
+</form>
+</section>
+</div>
+<div aria-hidden="true" class="photo-lightbox-overlay" id="photo-lightbox-overlay">
+<button class="quick-plus-backdrop" id="photo-lightbox-close-bg"></button>
+<div class="photo-lightbox-card">
+<button class="sheet-close" id="photo-lightbox-close">×</button>
+<img alt="" id="photo-lightbox-img" src=""/>
+</div>
+</div>
+<div aria-hidden="true" class="file-preview-overlay" id="file-preview-overlay">
+<button class="quick-plus-backdrop" id="file-preview-close-bg"></button>
+<section class="file-preview-card glass-card">
+<button class="sheet-close" id="file-preview-close">×</button>
+<p class="cert-kicker" id="file-preview-name">soubor.pdf</p>
+<div class="file-preview-body" id="file-preview-body"></div>
+</section>
+</div>
+<div aria-hidden="true" class="export-overlay" id="diary-export-overlay">
+<button class="quick-plus-backdrop" id="diary-export-close-bg"></button>
+<section class="export-card glass-card export-card-tall">
+<button class="sheet-close" id="diary-export-close">×</button>
+<p class="cert-kicker">EXPORT · STAVEBNÍ DENÍK</p>
+<h2>Vygenerovat deník</h2>
+<div class="export-options">
+<label class="export-option"><input checked="" name="diary-export-mode" type="radio" value="all"/><span><b>Kompletní deník</b><small>Všechny zápisy ze všech etap, řazené podle data</small></span></label>
+<label class="export-option"><input name="diary-export-mode" type="radio" value="by-stage"/><span><b>Po etapách</b><small>Zápisy rozdělené do kapitol podle jednotlivých etap</small></span></label>
+<label class="export-option"><input name="diary-export-mode" type="radio" value="one-stage"/><span><b>Jedna etapa</b><small>Vyber konkrétní etapu níže</small></span></label>
+<label class="export-option"><input name="diary-export-mode" type="radio" value="range"/><span><b>Rozsah dat</b><small>Od – do, vyber dny níže</small></span></label>
+</div>
+<div class="export-select" id="diary-export-stage-wrap" style="display:none"></div>
+<div class="export-range" id="diary-export-range" style="display:none">
+<label class="form-field"><span>Od</span><select class="export-select" id="diary-export-range-from">
+</select></label>
+<label class="form-field"><span>Do</span><select class="export-select" id="diary-export-range-to">
+</select></label>
+</div>
+<button class="primary-wide" id="diary-export-go">Vygenerovat PDF</button>
+</section>
+</div>
+<div aria-hidden="true" class="export-overlay" id="finance-export-overlay">
+<button class="quick-plus-backdrop" id="finance-export-close-bg"></button>
+<section class="export-card glass-card">
+<button class="sheet-close" id="finance-export-close">×</button>
+<p class="cert-kicker">EXPORT · FINANCE</p>
+<h2>Vygenerovat přehled</h2>
+<div class="export-options">
+<label class="export-option"><input checked="" id="fin-summary" type="checkbox"/><span><b>Celkový přehled</b><small>Zůstatek, celkové výdaje a vklady</small></span></label>
+<label class="export-option"><input checked="" id="fin-by-stage" type="checkbox"/><span><b>Rozpis po etapách</b><small>Kolik bylo utraceno v jednotlivých etapách</small></span></label>
+<label class="export-option"><input checked="" id="fin-transactions" type="checkbox"/><span><b>Seznam transakcí</b><small>Všechny výdaje a vklady jednotlivě</small></span></label>
+</div>
+<button class="primary-wide" id="finance-export-go">Vygenerovat PDF</button>
+</section>
+</div>
+<div aria-hidden="true" class="quick-plus-overlay" id="quick-plus-overlay">
+<button class="quick-plus-backdrop" id="quick-plus-close-bg"></button>
+<section aria-label="Rychlé přidání" class="quick-plus-wheel">
+<button class="quick-plus-item qp-entry" data-quick-form="entry"><span><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M18 10 H46 V54 H18 Z"></path><path d="M25 20 H39 M25 29 H39 M25 38 H34"></path><path d="M39 44 L50 33 L55 38 L44 49 L37 51 Z"></path><path d="M25 10 V17 M32 10 V17 M39 10 V17"></path></svg></span><small>Zápis</small></button>
+<button class="quick-plus-item qp-photo" data-quick-form="photo"><span><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M14 22 H25 L29 16 H39 L43 22 H50 Q55 22 55 27 V48 Q55 53 50 53 H14 Q9 53 9 48 V27 Q9 22 14 22 Z"></path><circle cx="32" cy="38" r="10"></circle><path d="M48 29 H49"></path></svg></span><small>Fotky</small></button>
+<button class="quick-plus-item qp-transaction" data-quick-form="transaction"><span><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M12 22 H48 Q54 22 54 28 V48 Q54 54 48 54 H16 Q10 54 10 48 V20 Q10 14 16 14 H43 V22"></path><path d="M42 34 H56 V45 H42 Q36 45 36 39.5 Q36 34 42 34 Z"></path><path d="M47 39.5 H48"></path></svg></span><small>Peníze</small></button>
+<button class="quick-plus-item qp-event" data-quick-form="event"><span><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M18 13 H46 V54 H18 Z"></path><path d="M18 24 H46"></path><path d="M24 10 V18 M40 10 V18"></path><path d="M25 38 L31 44 L42 31"></path></svg></span><small>Událost</small></button>
+<button class="quick-plus-center" id="quick-plus-close">×</button>
+</section>
+</div>
+<button aria-hidden="true" class="quick-form-backdrop" id="quick-form-backdrop"></button>
+<section aria-hidden="true" class="quick-form-sheet glass-card" id="quick-form-sheet">
+<div class="sheet-handle"></div>
+<button class="sheet-close" id="quick-form-close">×</button>
+<div id="quick-form-content"></div>
+</section>
+<nav class="bottom-nav">
+<a class="active" data-nav="dashboard" href="#"><span class="nav-icon"><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M12 31 L32 13 L52 31"></path><path d="M18 28 V53 H28 V39 H36 V53 H46 V28"></path></svg></span><small>Domů</small></a>
+<a data-nav="stages" href="#"><span class="nav-icon"><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M13 38 L32 28 L51 38 L32 50 Z"></path><path d="M13 26 L32 16 L51 26 L32 38 Z"></path><path d="M13 26 V38 M51 26 V38 M32 38 V50"></path></svg></span><small>Etapy</small></a>
+<button class="add-button" type="button">+</button>
+<a data-nav="diary" href="#"><span class="nav-icon"><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M17 12 H42 L50 20 V52 H17 Z"></path><path d="M42 12 V21 H50"></path><path d="M24 28 H42 M24 36 H40 M24 44 H34"></path><path d="M40 45 L50 35 L55 40 L45 50 L38 52 Z"></path></svg></span><small>Deník</small></a>
+<a data-nav="project" href="#"><span class="nav-icon"><svg aria-hidden="true" class="neon-icon" viewbox="0 0 64 64"><path d="M14 50 H50 V18 H14 Z"></path><path d="M20 44 H28 V34 H20 Z M36 44 H44 V28 H36 Z"></path><path d="M14 26 H50 M32 18 V50"></path><path d="M10 14 H24 M40 14 H54 M10 54 H24 M40 54 H54"></path></svg></span><small>Projekt</small></a>
+</nav>
+</main>
+<script src="pdf-fonts.js"></script>
+<script src="app.js"></script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').then((reg)=>{
+      // Při každém otevření appky rovnou zkontrolovat, jestli není
+      // na serveru novější verze — ne čekat, až si to prohlížeč
+      // všimne sám (na to se nedá spolehnout, hlavně v appce přidané
+      // na plochu telefonu).
+      reg.update().catch(()=>{});
+    }).catch(()=>{});
+
+    // Jakmile nová verze service workeru převezme kontrolu (ať po
+    // aktualizaci, nebo po smazání/znovunahrání appky), stránku
+    // jednou tiše obnovíme, ať se nová appka fakt použije hned —
+    // ne až při druhém otevření.
+    let refreshedOnce=false;
+    navigator.serviceWorker.addEventListener('controllerchange', ()=>{
+      if(refreshedOnce) return;
+      refreshedOnce=true;
+      window.location.reload();
+    });
+  });
+}
+</script>
+</body>
+</html>
